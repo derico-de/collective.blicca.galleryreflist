@@ -126,7 +126,7 @@ outermost element an add-on can dress.
 <section class="galleryreflist has--blockStyle--forest">
   <div class="block block-h3 …"><h3 id="…">Heading</h3></div>   <!-- only with a heading -->
   <div class="block block-p …"><p>Text</p></div>                <!-- only with a text -->
-  <div class="block block-plone-collective.referencelist …">    <!-- only with references -->
+  <div class="block block-plone-collective-referencelist …">    <!-- only with references -->
     <div class="referencelist variation-summary">…</div>
   </div>
 </section>

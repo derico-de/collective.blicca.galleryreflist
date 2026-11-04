@@ -50,9 +50,8 @@ class TestSetup:
 
     def test_loads_after_the_reference_list(self):
         records = block_addon_records()
-        assert (
-            records[RECORD_NAME].weight > records["collective.blicca.referencelist.referencelist"].weight
-        )
+        reference_list = records["collective.blicca.referencelist.referencelist"]
+        assert records[RECORD_NAME].weight > reference_list.weight
 
     def test_addon_loadable_by_the_editor(self):
         statuses = {s.name: s for s in blockaddons.evaluate(self.portal)}

@@ -37,7 +37,8 @@ class TestStyles:
 
     def test_a_theme_replaces_the_styles_in_its_registry_xml(self):
         registry = getUtility(IRegistry)
-        RegistryImporter(registry, DummyImportContext(self.portal, purge=False)).importDocument(THEME_REGISTRY_XML)
+        environ = DummyImportContext(self.portal, purge=False)
+        RegistryImporter(registry, environ).importDocument(THEME_REGISTRY_XML)
         assert registry[RECORD] == [("feature", "Feature"), ("forest", "Forest")]
         assert style_class_of({"blockStyle": "forest"}) == "has--blockStyle--forest"
 
