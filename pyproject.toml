@@ -1,6 +1,6 @@
 [project]
 name = "collective.blicca.galleryreflist"
-version = "1.0.0a1"
+version = "1.0.0a1.dev0"
 description = "Gallery section block for the Aurora editor: a heading, a text and a Reference List composed into one block, with registrable styles"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -26,6 +26,11 @@ keywords = ["Plone", "CMS"]
 dependencies = [
     "Plone>=6.0",
     "setuptools<81",
+    # Its block is the gallery this block nests, its transformers resolve the
+    # nested references, and its widgets drive the sidebar.
+    "collective.blicca.referencelist",
+    "plone.blicca.auroraeditor>=1.0.0a4",
+    "plone.restapi",
 ]
 
 [project.optional-dependencies]
@@ -38,10 +43,10 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/collective.blicca/collective.blicca.galleryreflist"
-Documentation = "https://github.com/collective.blicca/collective.blicca.galleryreflist"
-Repository = "https://github.com/collective.blicca/collective.blicca.galleryreflist.git"
-Issues = "https://github.com/collective.blicca/collective.blicca.galleryreflist/issues"
+Homepage = "https://github.com/collective/collective.blicca.galleryreflist"
+Documentation = "https://github.com/collective/collective.blicca.galleryreflist"
+Repository = "https://github.com/collective/collective.blicca.galleryreflist.git"
+Issues = "https://github.com/collective/collective.blicca.galleryreflist/issues"
 
 [project.entry-points."z3c.autoinclude.plugin"]
 target = "plone"
@@ -52,6 +57,17 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/collective"]
+
+[tool.uv]
+# Resolve against the Plone the site actually runs, so the lock CI installs is
+# the combination this add-on is developed against.
+constraint-dependencies = ["Products.CMFPlone==6.2.2"]
+
+[tool.uv.sources]
+# Locally these are the sibling checkouts; CI checks them out beside this
+# repository so the same relative paths resolve.
+"plone.blicca.auroraeditor" = { path = "../plone.blicca.auroraeditor", editable = true }
+"collective.blicca.referencelist" = { path = "../collective.blicca.referencelist", editable = true }
 
 [tool.plone.backend_addon.settings]
 package_name = "collective.blicca.galleryreflist"

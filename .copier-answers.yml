@@ -4,7 +4,7 @@
 _src_path: /home/dev/.copier-templates/plone-copier-templates/backend_addon
 author_email: md@derico.de
 author_name: Maik Derstappen
-github_organization: collective.blicca
+github_organization: collective
 is_headless: false
 package_description: 'Gallery section block for the Aurora editor: a heading, a text
     and a Reference List composed into one block, with registrable styles'
