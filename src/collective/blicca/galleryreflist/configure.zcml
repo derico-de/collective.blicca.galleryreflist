@@ -32,4 +32,7 @@
       handler="collective.blicca.galleryreflist.setuphandlers.uninstall"
       />
 
+
+  <include package=".vocabularies" />
+
 </configure>

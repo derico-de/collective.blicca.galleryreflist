@@ -83,6 +83,7 @@ author_email = "md@derico.de"
 content_types = []
 behaviors = []
 services = []
+vocabularies = ["BlockStyles"]
 
 [tool.pytest.ini_options]
 testpaths = ["src/collective/blicca/galleryreflist/tests"]
