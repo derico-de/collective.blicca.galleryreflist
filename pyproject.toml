@@ -65,7 +65,6 @@ constraint-dependencies = ["Products.CMFPlone==6.2.2"]
 # Locally these are the sibling checkouts; CI checks them out beside this
 # repository so the same relative paths resolve.
 "plone.blicca.auroraeditor" = { path = "../plone.blicca.auroraeditor", editable = true }
-"collective.blicca.referencelist" = { path = "../collective.blicca.referencelist", editable = true }
 
 [tool.plone.backend_addon.settings]
 package_name = "collective.blicca.galleryreflist"

@@ -517,7 +517,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "collective-blicca-referencelist", editable = "../collective.blicca.referencelist" },
+    { name = "collective-blicca-referencelist" },
     { name = "plone", specifier = ">=6.0" },
     { name = "plone-app-testing", marker = "extra == 'test'" },
     { name = "plone-blicca-auroraeditor", editable = "../plone.blicca.auroraeditor" },
@@ -531,26 +531,17 @@ provides-extras = ["test"]
 
 [[package]]
 name = "collective-blicca-referencelist"
-version = "1.0.0a8.dev0"
-source = { editable = "../collective.blicca.referencelist" }
+version = "1.0.0a7"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "plone" },
     { name = "plone-blicca-auroraeditor" },
     { name = "plone-restapi" },
 ]
-
-[package.metadata]
-requires-dist = [
-    { name = "plone", specifier = ">=6.0" },
-    { name = "plone-app-testing", marker = "extra == 'test'" },
-    { name = "plone-blicca-auroraeditor", editable = "../plone.blicca.auroraeditor" },
-    { name = "plone-restapi" },
-    { name = "plone-testing", marker = "extra == 'test'" },
-    { name = "pytest", marker = "extra == 'test'" },
-    { name = "pytest-cov", marker = "extra == 'test'" },
-    { name = "pytest-plone", marker = "extra == 'test'", specifier = ">=0.5.0" },
+sdist = { url = "https://files.pythonhosted.org/packages/98/1a/ffa705101dca603ebfc7f6ad41814a8699faf4b7c73d9aedb4e7b915fece/collective_blicca_referencelist-1.0.0a7.tar.gz", hash = "sha256:4b906b2688e18377ad69b64b45b2d40309fe5a83b47506eef70ca677df765ad7", size = 411269, upload-time = "2026-10-16T18:26:33.939Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0e/1f/c70357e424205c3f2b8013c0c92095a354e405b0ebd8cef96bbb69788e9e/collective_blicca_referencelist-1.0.0a7-py3-none-any.whl", hash = "sha256:0654712075c9b05b4a14cbbc7220f27931414bd00ae9373fe795d829755930ea", size = 76671, upload-time = "2026-10-16T18:26:31.324Z" },
 ]
-provides-extras = ["test"]
 
 [[package]]
 name = "collective-monkeypatcher"
