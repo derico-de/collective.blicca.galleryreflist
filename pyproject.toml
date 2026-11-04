@@ -62,8 +62,7 @@ packages = ["src/collective"]
 constraint-dependencies = ["Products.CMFPlone==6.2.2"]
 
 [tool.uv.sources]
-# Locally these are the sibling checkouts; CI checks them out beside this
-# repository so the same relative paths resolve.
+# The sibling checkout this add-on is developed against.
 "plone.blicca.auroraeditor" = { path = "../plone.blicca.auroraeditor", editable = true }
 
 [tool.plone.backend_addon.settings]
