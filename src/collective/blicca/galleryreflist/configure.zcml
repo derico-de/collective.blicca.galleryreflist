@@ -35,4 +35,7 @@
 
   <include package=".vocabularies" />
 
+
+  <include package=".views" />
+
 </configure>

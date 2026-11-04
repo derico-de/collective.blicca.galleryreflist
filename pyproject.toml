@@ -84,6 +84,7 @@ content_types = []
 behaviors = []
 services = []
 vocabularies = ["BlockStyles"]
+views = ["aurora-block-plone-collective.galleryreflist"]
 
 [tool.pytest.ini_options]
 testpaths = ["src/collective/blicca/galleryreflist/tests"]

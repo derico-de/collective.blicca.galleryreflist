@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="collective.blicca.galleryreflist">
+
+  <browser:page
+      name="aurora-block-plone-collective.galleryreflist"
+      for="*"
+      class=".gallery_reflist_block_view.GalleryReflistBlockView"
+      template="gallery_reflist_block_view.pt"
+      permission="zope2.View"
+      layer="collective.blicca.galleryreflist.interfaces.ICollectiveBliccaGalleryreflistLayer"
+      />
+
+</configure>
