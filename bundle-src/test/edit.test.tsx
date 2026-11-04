@@ -1,0 +1,136 @@
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render } from '@testing-library/react';
+import config from '@plone/registry';
+
+import referenceListInstall from '../../../collective.blicca.referencelist/bundle-src/src/index';
+import { seededData } from '../src/galleryreflist/data';
+import GalleryReflistEdit from '../src/galleryreflist/GalleryReflistEdit';
+import GalleryReflistView from '../src/galleryreflist/GalleryReflistView';
+import { setBlockStyles } from '../src/galleryreflist/styles';
+import { installUpstreamRegistry } from './upstream-registry';
+
+beforeAll(() => {
+  referenceListInstall(installUpstreamRegistry(config as any));
+});
+afterEach(() => {
+  cleanup();
+  setBlockStyles([]);
+});
+
+const CAT = 'https://cataas.com/cat?filter=mono';
+const picked = { '@id': 'http://site/Plone/a', UID: 'ua', title: 'Picked item' };
+
+function withReferences() {
+  const data = seededData();
+  return { ...data, blocks: { ...data.blocks, gallery: { ...data.blocks.gallery, references: [picked] } } };
+}
+
+describe('the seed', () => {
+  it('writes once on a fresh block and keeps what the block carries', () => {
+    const onChangeBlock = vi.fn();
+    const { rerender } = render(
+      <GalleryReflistEdit block="b1" data={{ blockWidth: 'layout' }} onChangeBlock={onChangeBlock} />,
+    );
+    rerender(<GalleryReflistEdit block="b1" data={{ blockWidth: 'layout' }} onChangeBlock={onChangeBlock} />);
+    expect(onChangeBlock).toHaveBeenCalledTimes(1);
+    const [id, next] = onChangeBlock.mock.calls[0];
+    expect(id).toBe('b1');
+    expect(next.blockWidth).toBe('layout');
+    expect(next.blocks.gallery.references).toEqual([]);
+  });
+
+  it('leaves a seeded block alone, also when a field was cleared', () => {
+    const onChangeBlock = vi.fn();
+    const data = seededData();
+    data.blocks.heading.children = [{ text: '' }];
+    render(<GalleryReflistEdit block="b1" data={data} onChangeBlock={onChangeBlock} />);
+    expect(onChangeBlock).not.toHaveBeenCalled();
+  });
+});
+
+describe('the inline fields', () => {
+  it('stand inside the elements the page renders', () => {
+    const { container } = render(<GalleryReflistEdit block="b1" data={seededData()} />);
+    expect(container.querySelector('section.galleryreflist > h3 > textarea')).toBeTruthy();
+    expect(container.querySelector('section.galleryreflist > p > textarea')).toBeTruthy();
+  });
+
+  it('write the typed text into the nested child', () => {
+    const onChangeBlock = vi.fn();
+    const data = seededData();
+    const { getByLabelText } = render(
+      <GalleryReflistEdit block="b1" data={data} onChangeBlock={onChangeBlock} />,
+    );
+    fireEvent.change(getByLabelText('Heading'), { target: { value: 'Typed' } });
+    const next = onChangeBlock.mock.calls[0][1];
+    expect(next.blocks.heading).toEqual({ type: 'h3', children: [{ text: 'Typed' }] });
+    expect(next.blocks.gallery).toBe(data.blocks.gallery);
+  });
+
+  it('keep the keyboard from the editor', () => {
+    const onKeyDown = vi.fn();
+    const { getByLabelText } = render(
+      <div onKeyDown={onKeyDown}>
+        <GalleryReflistEdit block="b1" data={seededData()} />
+      </div>,
+    );
+    fireEvent.keyDown(getByLabelText('Text'), { key: 'Backspace' });
+    expect(onKeyDown).not.toHaveBeenCalled();
+  });
+
+  it('stay on one line', () => {
+    const onChangeBlock = vi.fn();
+    const { getByLabelText } = render(
+      <GalleryReflistEdit block="b1" data={seededData()} onChangeBlock={onChangeBlock} />,
+    );
+    fireEvent.change(getByLabelText('Text'), { target: { value: 'a\nb' } });
+    expect(onChangeBlock.mock.calls[0][1].blocks.text.children[0].text).toBe('a b');
+  });
+});
+
+describe('the gallery on the canvas', () => {
+  it('shows the example images until references are picked', () => {
+    const { container } = render(<GalleryReflistEdit block="b1" data={seededData()} />);
+    const images = [...container.querySelectorAll('.referencelist img')];
+    expect(images).toHaveLength(3);
+    for (const image of images) expect(image.getAttribute('src')).toBe(CAT);
+    expect(container.querySelector('.referencelist.variation-grid')).toBeTruthy();
+    expect(container.querySelector('.referencelist-notice')?.textContent).toContain('Example images');
+  });
+
+  it('shows the real items as soon as references are set', () => {
+    const { container } = render(<GalleryReflistEdit block="b1" data={withReferences()} />);
+    expect(container.innerHTML).not.toContain('cataas');
+    expect(container.querySelector('.referencelist')?.textContent).toContain('Picked item');
+    expect(container.querySelector('.referencelist-notice')).toBeNull();
+  });
+
+  it('carries the style class on the root', () => {
+    setBlockStyles([['feature', 'Feature']]);
+    const { container } = render(
+      <GalleryReflistEdit block="b1" data={{ ...seededData(), blockStyle: 'feature' }} />,
+    );
+    expect(container.querySelector('section')?.className).toBe(
+      'galleryreflist has--blockStyle--feature',
+    );
+  });
+});
+
+describe('the view', () => {
+  it('renders the same anatomy with the real items', () => {
+    const { container } = render(<GalleryReflistView data={withReferences()} />);
+    expect(container.querySelector('section.galleryreflist > h3')?.textContent).toBeTruthy();
+    expect(container.querySelector('section.galleryreflist > p')?.textContent).toBeTruthy();
+    expect(container.querySelector('.referencelist')?.textContent).toContain('Picked item');
+  });
+
+  it('never shows placeholders or an empty gallery', () => {
+    const { container } = render(<GalleryReflistView data={seededData()} />);
+    expect(container.innerHTML).not.toContain('cataas');
+    expect(container.querySelector('.referencelist')).toBeNull();
+  });
+
+  it('renders nothing for a block with nothing to show', () => {
+    expect(render(<GalleryReflistView data={{}} />).container.innerHTML).toBe('');
+  });
+});
