@@ -1,5 +1,5 @@
 """Setup handlers for collective.blicca.galleryreflist."""
-from Products.CMFPlone.interfaces import INonInstallable
+from plone.base.interfaces import INonInstallable
 from zope.interface import implementer
 
 

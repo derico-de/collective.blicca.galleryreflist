@@ -1,34 +1,86 @@
-"""Test collective.blicca.galleryreflist installation."""
+"""Install and uninstall: the editor finds the block per site through its record."""
+
 import pytest
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
+from plone.blicca.auroraeditor import blockaddons
+from plone.blicca.auroraeditor.interfaces import IAuroraBlockAddon
+from plone.browserlayer import utils
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
+
+from collective.blicca.galleryreflist.interfaces import ICollectiveBliccaGalleryreflistLayer
+from collective.blicca.galleryreflist.styles import RECORD as STYLES_RECORD
+
+
+RECORD_NAME = "collective.blicca.galleryreflist.galleryreflist"
+RESOURCE = "++plone++collective.blicca.galleryreflist"
+
+
+def block_addon_records():
+    registry = getUtility(IRegistry)
+    return registry.collectionOfInterface(
+        IAuroraBlockAddon, prefix=blockaddons.BLOCKADDON_PREFIX, check=False
+    )
 
 
 class TestSetup:
-    """Test installation and setup."""
-
     @pytest.fixture(autouse=True)
     def _setup(self, integration):
         self.portal = integration["portal"]
 
     def test_addon_installed(self):
-        """Test addon is installed."""
         installer = api.addon.get_installer(self.portal)
         assert installer.is_product_installed("collective.blicca.galleryreflist")
 
+    def test_reference_list_comes_along(self):
+        installer = api.addon.get_installer(self.portal)
+        assert installer.is_product_installed("collective.blicca.referencelist")
+
     def test_browserlayer(self):
-        """Test browserlayer is registered."""
-        # Add an actual browserlayer check if your addon registers one, e.g.:
-        # from plone.browserlayer import utils
-        # from collective.blicca.galleryreflist.interfaces import ICollectiveBliccaGalleryreflistLayer
-        # assert ICollectiveBliccaGalleryreflistLayer in utils.registered_layers()
-        assert True
+        assert ICollectiveBliccaGalleryreflistLayer in utils.registered_layers()
+
+    def test_blockaddon_record_installed(self):
+        record = block_addon_records()[RECORD_NAME]
+        assert record.bundle == f"{RESOURCE}/galleryreflist-block.js"
+        assert record.css == f"{RESOURCE}/galleryreflist-block.css"
+        assert record.types == ["plone-collective.galleryreflist"]
+        assert record.enabled
+
+    def test_loads_after_the_reference_list(self):
+        records = block_addon_records()
+        assert (
+            records[RECORD_NAME].weight > records["collective.blicca.referencelist.referencelist"].weight
+        )
+
+    def test_addon_loadable_by_the_editor(self):
+        statuses = {s.name: s for s in blockaddons.evaluate(self.portal)}
+        status = statuses[RECORD_NAME]
+        assert status.skip_reason is None
+        assert status.loadable
+        assert status.bundle_url
+        assert status.css_url
+
+    def test_styles_record_installed(self):
+        assert getUtility(IRegistry)[STYLES_RECORD] == [
+            ("feature", "Feature"),
+            ("compact", "Compact"),
+        ]
+
+    def test_uninstall_profile_is_hidden(self):
+        from plone.base.interfaces import INonInstallable
+        from zope.component import getAllUtilitiesRegisteredFor
+
+        hidden = [
+            name
+            for utility in getAllUtilitiesRegisteredFor(INonInstallable)
+            for name in getattr(utility, "getNonInstallableProfiles", list)()
+        ]
+        assert "collective.blicca.galleryreflist:uninstall" in hidden
 
 
 class TestUninstall:
-    """Test uninstallation."""
-
     @pytest.fixture(autouse=True)
     def _setup(self, integration):
         self.portal = integration["portal"]
@@ -37,5 +89,13 @@ class TestUninstall:
         self.installer.uninstall_product("collective.blicca.galleryreflist")
 
     def test_addon_uninstalled(self):
-        """Test addon is uninstalled."""
         assert not self.installer.is_product_installed("collective.blicca.galleryreflist")
+
+    def test_blockaddon_record_removed(self):
+        assert RECORD_NAME not in block_addon_records()
+
+    def test_styles_record_removed(self):
+        assert STYLES_RECORD not in getUtility(IRegistry).records
+
+    def test_browserlayer_removed(self):
+        assert ICollectiveBliccaGalleryreflistLayer not in utils.registered_layers()

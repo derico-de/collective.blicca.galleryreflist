@@ -25,6 +25,16 @@
       directory="profiles/uninstall"
       />
 
+  <!-- Serves the committed editor bundle and its scope-wrapped sheet as
+       ++plone++collective.blicca.galleryreflist/... (block add-on contract
+       §3.1). `type="plone"`, never ++resource++: a second URL for the same
+       module means a second React inside Plate. -->
+  <plone:static
+      name="collective.blicca.galleryreflist"
+      type="plone"
+      directory="static"
+      />
+
   <genericsetup:importStep
       name="collective.blicca.galleryreflist-uninstall"
       title="Collective Blicca Galleryreflist uninstall"
@@ -32,9 +42,13 @@
       handler="collective.blicca.galleryreflist.setuphandlers.uninstall"
       />
 
+  <!-- Keep the uninstall profile out of the Add-ons control panel. -->
+  <utility
+      factory=".setuphandlers.HiddenProfiles"
+      name="collective.blicca.galleryreflist-hiddenprofiles"
+      />
 
   <include package=".vocabularies" />
-
 
   <include package=".views" />
 

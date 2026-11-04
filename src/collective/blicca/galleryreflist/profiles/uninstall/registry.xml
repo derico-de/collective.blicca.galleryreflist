@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+
+  <records
+      interface="plone.blicca.auroraeditor.interfaces.IAuroraBlockAddon"
+      prefix="plone.blicca.auroraeditor.blockaddons/collective.blicca.galleryreflist.galleryreflist"
+      remove="true"
+      />
+
+  <records
+      interface="collective.blicca.galleryreflist.interfaces.IGalleryReflistSettings"
+      prefix="collective.blicca.galleryreflist"
+      remove="true"
+      />
+
+</registry>

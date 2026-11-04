@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+
+  <!-- The one IAuroraBlockAddon record for the one block this package ships
+       (block add-on contract §3.2). The weight loads it after the Reference
+       List it nests, whose widgets its schema names. -->
+  <records
+      interface="plone.blicca.auroraeditor.interfaces.IAuroraBlockAddon"
+      prefix="plone.blicca.auroraeditor.blockaddons/collective.blicca.galleryreflist.galleryreflist"
+      >
+    <value key="bundle">++plone++collective.blicca.galleryreflist/galleryreflist-block.js</value>
+    <value key="css">++plone++collective.blicca.galleryreflist/galleryreflist-block.css</value>
+    <value key="types">
+      <element>plone-collective.galleryreflist</element>
+    </value>
+    <value key="enabled">True</value>
+    <value key="weight">110</value>
+  </records>
+
+  <!-- The block styles. A theme replaces the list with its own
+       collective.blicca.galleryreflist.styles record. -->
+  <records
+      interface="collective.blicca.galleryreflist.interfaces.IGalleryReflistSettings"
+      prefix="collective.blicca.galleryreflist"
+      />
+
+</registry>
