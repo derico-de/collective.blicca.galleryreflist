@@ -62,7 +62,8 @@ packages = ["src/collective"]
 constraint-dependencies = ["Products.CMFPlone==6.2.2"]
 
 [tool.uv.sources]
-# The sibling checkout this add-on is developed against.
+# plone.blicca.auroraeditor is not on PyPI. Locally it is the sibling checkout;
+# CI checks it out beside this repository so the same relative path resolves.
 "plone.blicca.auroraeditor" = { path = "../plone.blicca.auroraeditor", editable = true }
 
 [tool.plone.backend_addon.settings]
