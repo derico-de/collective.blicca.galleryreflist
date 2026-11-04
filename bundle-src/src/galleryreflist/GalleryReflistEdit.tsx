@@ -1,6 +1,8 @@
 /**
  * The canvas: the heading and the text typed in place, the gallery drawn by the
  * Reference List's own halves. Until references are picked it shows examples.
+ * The `block-*` wrappers are the published anatomy: the host's sheet sets the
+ * heading's type through them on both surfaces.
  */
 import { useEffect, useRef } from 'react';
 import config from '@plone/registry';
@@ -64,16 +66,20 @@ export function GalleryReflistEdit({ block, data = {}, onChangeBlock }: GalleryR
 
   return (
     <section className={rootClass(data)}>
-      <h3>
-        <InlineField
-          label="Heading"
-          value={textOf(blocks.heading)}
-          onChange={setText('heading', 'h3')}
-        />
-      </h3>
-      <p>
-        <InlineField label="Text" value={textOf(blocks.text)} onChange={setText('text', 'p')} />
-      </p>
+      <div className="block block-h3">
+        <h3>
+          <InlineField
+            label="Heading"
+            value={textOf(blocks.heading)}
+            onChange={setText('heading', 'h3')}
+          />
+        </h3>
+      </div>
+      <div className="block block-p">
+        <p>
+          <InlineField label="Text" value={textOf(blocks.text)} onChange={setText('text', 'p')} />
+        </p>
+      </div>
       <Gallery gallery={blocks.gallery} />
     </section>
   );

@@ -51,8 +51,8 @@ describe('the seed', () => {
 describe('the inline fields', () => {
   it('stand inside the elements the page renders', () => {
     const { container } = render(<GalleryReflistEdit block="b1" data={seededData()} />);
-    expect(container.querySelector('section.galleryreflist > h3 > textarea')).toBeTruthy();
-    expect(container.querySelector('section.galleryreflist > p > textarea')).toBeTruthy();
+    expect(container.querySelector('.galleryreflist > .block-h3 > h3 > textarea')).toBeTruthy();
+    expect(container.querySelector('.galleryreflist > .block-p > p > textarea')).toBeTruthy();
   });
 
   it('write the typed text into the nested child', () => {
@@ -119,8 +119,8 @@ describe('the gallery on the canvas', () => {
 describe('the view', () => {
   it('renders the same anatomy with the real items', () => {
     const { container } = render(<GalleryReflistView data={withReferences()} />);
-    expect(container.querySelector('section.galleryreflist > h3')?.textContent).toBeTruthy();
-    expect(container.querySelector('section.galleryreflist > p')?.textContent).toBeTruthy();
+    expect(container.querySelector('.galleryreflist > .block-h3 > h3')?.textContent).toBeTruthy();
+    expect(container.querySelector('.galleryreflist > .block-p > p')?.textContent).toBeTruthy();
     expect(container.querySelector('.referencelist')?.textContent).toContain('Picked item');
   });
 

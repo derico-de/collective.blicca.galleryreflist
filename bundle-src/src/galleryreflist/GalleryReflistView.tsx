@@ -18,8 +18,16 @@ export function GalleryReflistView({ data = {} }: { data?: GalleryReflistData })
   const GalleryView = (config as any).blocks?.blocksConfig?.[REFERENCELIST_BLOCK_TYPE]?.view;
   return (
     <section className={rootClass(data)}>
-      {headingText.trim() ? <h3>{headingText}</h3> : null}
-      {bodyText.trim() ? <p>{bodyText}</p> : null}
+      {headingText.trim() ? (
+        <div className="block block-h3">
+          <h3>{headingText}</h3>
+        </div>
+      ) : null}
+      {bodyText.trim() ? (
+        <div className="block block-p">
+          <p>{bodyText}</p>
+        </div>
+      ) : null}
       {showGallery && GalleryView ? <GalleryView data={gallery} /> : null}
     </section>
   );

@@ -124,15 +124,15 @@ function GalleryReflistEdit({ block, data = {}, onChangeBlock }) {
     blocks: { ...blocks, [key]: withText(blocks[key], type, text) }
   });
   return /* @__PURE__ */ jsxs("section", { className: rootClass(data), children: [
-    /* @__PURE__ */ jsx("h3", { children: /* @__PURE__ */ jsx(
+    /* @__PURE__ */ jsx("div", { className: "block block-h3", children: /* @__PURE__ */ jsx("h3", { children: /* @__PURE__ */ jsx(
       InlineField,
       {
         label: "Heading",
         value: textOf(blocks.heading),
         onChange: setText("heading", "h3")
       }
-    ) }),
-    /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx(InlineField, { label: "Text", value: textOf(blocks.text), onChange: setText("text", "p") }) }),
+    ) }) }),
+    /* @__PURE__ */ jsx("div", { className: "block block-p", children: /* @__PURE__ */ jsx("p", { children: /* @__PURE__ */ jsx(InlineField, { label: "Text", value: textOf(blocks.text), onChange: setText("text", "p") }) }) }),
     /* @__PURE__ */ jsx(Gallery, { gallery: blocks.gallery })
   ] });
 }
@@ -211,8 +211,8 @@ function GalleryReflistView({ data = {} }) {
   if (!headingText.trim() && !bodyText.trim() && !showGallery) return null;
   const GalleryView = config.blocks?.blocksConfig?.[REFERENCELIST_BLOCK_TYPE]?.view;
   return /* @__PURE__ */ jsxs("section", { className: rootClass(data), children: [
-    headingText.trim() ? /* @__PURE__ */ jsx("h3", { children: headingText }) : null,
-    bodyText.trim() ? /* @__PURE__ */ jsx("p", { children: bodyText }) : null,
+    headingText.trim() ? /* @__PURE__ */ jsx("div", { className: "block block-h3", children: /* @__PURE__ */ jsx("h3", { children: headingText }) }) : null,
+    bodyText.trim() ? /* @__PURE__ */ jsx("div", { className: "block block-p", children: /* @__PURE__ */ jsx("p", { children: bodyText }) }) : null,
     showGallery && GalleryView ? /* @__PURE__ */ jsx(GalleryView, { data: gallery }) : null
   ] });
 }

@@ -46,6 +46,11 @@
   border-inline-start: 0.25rem solid currentColor;
   background: color-mix(in srgb, currentColor 5%, transparent);
 }
+
+/* The padding is the space above, not the heading's margin on top of it. */
+.galleryreflist.has--blockStyle--feature > .block-h3:first-child > h3 {
+  margin-block-start: 0;
+}
 .galleryreflist.has--blockStyle--compact .referencelist .item {
   padding-block: 0.75rem;
 }
