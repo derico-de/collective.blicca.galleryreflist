@@ -38,6 +38,16 @@ class TestSetup:
         installer = api.addon.get_installer(self.portal)
         assert installer.is_product_installed("collective.blicca.referencelist")
 
+    def test_upgrade_profiles_are_hidden_from_addons(self):
+        from Products.CMFPlone.controlpanel.browser.quickinstaller import ManageProductsView
+
+        package = "collective.blicca.galleryreflist"
+        profiles = self.portal.portal_setup.listProfileInfo()
+        assert any(profile["id"].startswith(f"{package}.upgrades:") for profile in profiles)
+        addons = ManageProductsView(self.portal, self.portal.REQUEST).marshall_addons()
+        assert package in addons
+        assert f"{package}.upgrades" not in addons
+
     def test_browserlayer(self):
         assert ICollectiveBliccaGalleryreflistLayer in utils.registered_layers()
 
