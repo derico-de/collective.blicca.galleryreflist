@@ -32,7 +32,14 @@ describe('the style field', () => {
     expect(schema.properties).not.toHaveProperty('blockStyle');
   });
 
+  it('is absent where nothing is registered, whatever the block stored', () => {
+    const schema = GalleryReflistSchema({ formData: { blockStyle: 'gone' } });
+    expect(schema.fieldsets[0].fields).not.toContain('blockStyle');
+    expect(schema.properties).not.toHaveProperty('blockStyle');
+  });
+
   it('keeps a stored style the site dropped', () => {
+    setBlockStyles([['feature', 'Feature']]);
     expect(properties({ blockStyle: 'gone' }).blockStyle.choices).toContainEqual(['gone', 'gone']);
   });
 });

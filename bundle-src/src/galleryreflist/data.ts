@@ -48,7 +48,8 @@ export function rootClass(data: GalleryReflistData = {}) {
 }
 
 const PLACEHOLDER_HOST = 'https://cataas.com';
-const PLACEHOLDER_DOWNLOAD = 'cat?filter=mono';
+// One URL per image, or the browser shows the one cached cat three times.
+const PLACEHOLDER_WIDTHS = [480, 640, 800];
 
 /**
  * Items the Reference List's own view draws until references are picked. Canvas
@@ -60,13 +61,16 @@ export function placeholderGallery(gallery: GalleryChild = {}): GalleryChild {
   return {
     ...rest,
     linkItems: false,
-    items: [1, 2, 3].map((number) => ({
-      '@id': `${PLACEHOLDER_HOST}/#${number}`,
-      title: `Example item ${number}`,
+    items: PLACEHOLDER_WIDTHS.map((width, index) => ({
+      '@id': `${PLACEHOLDER_HOST}/#${index + 1}`,
+      title: `Example item ${index + 1}`,
       description: 'Shown until references are picked.',
       image_scales: {
         image: [
-          { base_path: PLACEHOLDER_HOST, scales: { preview: { download: PLACEHOLDER_DOWNLOAD } } },
+          {
+            base_path: PLACEHOLDER_HOST,
+            scales: { preview: { download: `cat?filter=mono&width=${width}` } },
+          },
         ],
       },
     })),

@@ -50,19 +50,22 @@ function rootClass(data = {}) {
   return style && blockStyleIds().includes(style) ? `galleryreflist has--blockStyle--${style}` : "galleryreflist";
 }
 const PLACEHOLDER_HOST = "https://cataas.com";
-const PLACEHOLDER_DOWNLOAD = "cat?filter=mono";
+const PLACEHOLDER_WIDTHS = [480, 640, 800];
 function placeholderGallery(gallery = {}) {
   const { references: _references, ...rest } = gallery;
   return {
     ...rest,
     linkItems: false,
-    items: [1, 2, 3].map((number) => ({
-      "@id": `${PLACEHOLDER_HOST}/#${number}`,
-      title: `Example item ${number}`,
+    items: PLACEHOLDER_WIDTHS.map((width, index) => ({
+      "@id": `${PLACEHOLDER_HOST}/#${index + 1}`,
+      title: `Example item ${index + 1}`,
       description: "Shown until references are picked.",
       image_scales: {
         image: [
-          { base_path: PLACEHOLDER_HOST, scales: { preview: { download: PLACEHOLDER_DOWNLOAD } } }
+          {
+            base_path: PLACEHOLDER_HOST,
+            scales: { preview: { download: `cat?filter=mono&width=${width}` } }
+          }
         ]
       }
     }))
@@ -168,7 +171,7 @@ function referenceListProperties(formData) {
 }
 function styleChoices(stored) {
   const choices = blockStyles();
-  if (stored && stored !== "none" && !choices.some(([id]) => id === stored)) {
+  if (choices.length && stored && stored !== "none" && !choices.some(([id]) => id === stored)) {
     return [...choices, [stored, stored]];
   }
   return choices;

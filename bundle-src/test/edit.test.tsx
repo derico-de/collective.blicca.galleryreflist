@@ -17,7 +17,7 @@ afterEach(() => {
   setBlockStyles([]);
 });
 
-const CAT = 'https://cataas.com/cat?filter=mono';
+const CATS = [480, 640, 800].map((width) => `https://cataas.com/cat?filter=mono&width=${width}`);
 const picked = { '@id': 'http://site/Plone/a', UID: 'ua', title: 'Picked item' };
 
 function withReferences() {
@@ -92,8 +92,7 @@ describe('the gallery on the canvas', () => {
   it('shows the example images until references are picked', () => {
     const { container } = render(<GalleryReflistEdit block="b1" data={seededData()} />);
     const images = [...container.querySelectorAll('.referencelist img')];
-    expect(images).toHaveLength(3);
-    for (const image of images) expect(image.getAttribute('src')).toBe(CAT);
+    expect(images.map((image) => image.getAttribute('src'))).toEqual(CATS);
     expect(container.querySelector('.referencelist.variation-grid')).toBeTruthy();
     expect(container.querySelector('.referencelist-notice')?.textContent).toContain('Example images');
   });

@@ -29,8 +29,8 @@ whose list and content picker it nests. The block's `@type` is
 - **The real Reference List.** Variation, Link items and the content picker
   are the Reference List's own fields, its templates apply, and its item
   lookup keeps the list current.
-- **Registrable styles.** A site offers its own list of styles, and the block
-  stays usable with none registered.
+- **Registrable styles.** A site replaces the list of styles in its registry,
+  and an empty list hides the Style control.
 - **Block width and background** come from the editor's regular block styling
   controls.
 
@@ -66,7 +66,7 @@ heading and the text right on the canvas, and fill in the rest in the sidebar.
 
 | Field | What it does |
 |---|---|
-| Style | `None` or one of the registered styles |
+| Style | `None` or one of the registered styles. Hidden when none are registered |
 | Variation | `Default`, `Summary` or `Grid` |
 | Link items | On by default: each card links to its item |
 | References | The picked items, in order |
@@ -80,14 +80,14 @@ Rules worth knowing:
   is left out of the page.
 - Item titles without a list headline are `h3`, the same level as the block's
   heading.
-- A stored style the site no longer registers gives no class on the page and
-  stays selectable in the sidebar, so saving the block does not lose it.
 
 ## Registering styles
 
-The styles are one registry record, a list of `(id, name)` pairs. `None` is
-always offered. The stock list is `Feature` and `Compact`. Registering the
-record replaces the whole list, so repeat the stock entries you want to keep:
+The styles authors can pick are one registry record, a list of `(id, name)`
+pairs. The stock list is `Feature` and `Compact`, two examples this add-on's
+stylesheet dresses. An add-on replaces the list in its `registry.xml`, and its
+profile must depend on `collective.blicca.galleryreflist:default`, which creates
+the record:
 
 ```xml
 <!-- profiles/default/registry.xml of your theme or add-on -->
@@ -107,8 +107,24 @@ record replaces the whole list, so repeat the stock entries you want to keep:
 </registry>
 ```
 
-Your add-on must load after this one, so that the record exists. Then style the
-class the id gives:
+The list is set as a whole: an entry you leave out is gone, so list the stock
+ones you keep. `None` is always offered and `none` is not available as an id.
+
+An empty list hides the Style control:
+
+```xml
+<registry>
+  <record name="collective.blicca.galleryreflist.styles">
+    <value />
+  </record>
+</registry>
+```
+
+A block that stored a dropped id keeps the value but renders without a style
+class on both surfaces, until the id is registered again. While other styles
+are registered, its Style control lists the id, until the author picks another.
+
+The record holds no CSS. Style the class the id gives:
 
 ```css
 .galleryreflist.has--blockStyle--forest {

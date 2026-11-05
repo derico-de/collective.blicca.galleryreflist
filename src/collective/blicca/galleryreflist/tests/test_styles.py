@@ -7,6 +7,7 @@ from Products.GenericSetup.tests.common import DummyImportContext
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 
+from collective.blicca.galleryreflist.styles import block_styles
 from collective.blicca.galleryreflist.styles import RECORD
 from collective.blicca.galleryreflist.styles import style_class_of
 
@@ -29,6 +30,15 @@ THEME_REGISTRY_XML = """
 </registry>
 """
 
+# The form the README tells a site to hide the Style control with.
+EMPTY_REGISTRY_XML = """
+<registry>
+  <record name="collective.blicca.galleryreflist.styles">
+    <value />
+  </record>
+</registry>
+"""
+
 
 class TestStyles:
     @pytest.fixture(autouse=True)
@@ -41,6 +51,19 @@ class TestStyles:
         RegistryImporter(registry, environ).importDocument(THEME_REGISTRY_XML)
         assert registry[RECORD] == [("feature", "Feature"), ("forest", "Forest")]
         assert style_class_of({"blockStyle": "forest"}) == "has--blockStyle--forest"
+
+    def test_a_theme_empties_the_styles_in_its_registry_xml(self):
+        registry = getUtility(IRegistry)
+        environ = DummyImportContext(self.portal, purge=False)
+        RegistryImporter(registry, environ).importDocument(EMPTY_REGISTRY_XML)
+        assert registry[RECORD] == []
+        factory = getUtility(IVocabularyFactory, "collective.blicca.galleryreflist.BlockStyles")
+        assert list(factory(self.portal)) == []
+        assert style_class_of({"blockStyle": "feature"}) == ""
+
+    def test_a_site_without_the_record_keeps_the_stock_list(self):
+        del getUtility(IRegistry).records[RECORD]
+        assert block_styles() == [("feature", "Feature"), ("compact", "Compact")]
 
     def test_vocabulary_lists_the_registered_styles(self):
         factory = getUtility(IVocabularyFactory, "collective.blicca.galleryreflist.BlockStyles")

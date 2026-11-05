@@ -7,6 +7,8 @@
  *  4. Saved without references: the words are public, the examples are not.
  *  5. Picking references replaces the examples with the real images.
  *  6. The published page renders them as one block, at the block's full width.
+ *  7. With no styles registered the sidebar has no Style control, and a save
+ *     keeps the stored style.
  *
  * Prerequisites: a running Plone site with collective.blicca.galleryreflist
  * installed, and the mockup bundle (pat-contentbrowser) reachable from the
@@ -28,7 +30,8 @@ const { BASE, USER, PASSWORD, EXECUTABLE, PAGE_TYPE, PNG_B64, api, fail } = requ
 const FOLDER_ID = 'galleryreflist-e2e';
 const PAGE_ID = 'page';
 const BLOCK_ID = 'gallery-block';
-const CAT = 'https://cataas.com/cat?filter=mono';
+const CATS = [480, 640, 800].map((width) => `https://cataas.com/cat?filter=mono&width=${width}`);
+const STYLES_VOCABULARY = 'collective.blicca.galleryreflist.BlockStyles';
 const IMAGES = [1, 2].map((n) => ({ id: `image-${n}`, title: `E2E image ${n}` }));
 const BLOCK = `[data-slate-editor] [data-block-id="${BLOCK_ID}"]`;
 const ROOT = `${BLOCK} section.galleryreflist`;
@@ -150,8 +153,8 @@ const choose = async (page, label, option) => {
       'A few words that introduce the items below.',
       'seed: the text',
     );
-    expectEqual(await sources(page.locator(`${ROOT} .referencelist img`)), [CAT, CAT, CAT], 'seed: the examples');
-    expectEqual(catRequests[0], CAT, 'seed: the browser asks for the exact placeholder URL');
+    expectEqual(await sources(page.locator(`${ROOT} .referencelist img`)), CATS, 'seed: the examples');
+    expectEqual(CATS.filter((url) => catRequests.includes(url)), CATS, 'seed: the browser asks for the exact placeholder URLs');
     const canvasType = await type(heading);
     const canvasTextType = await type(text);
     await shoot(page, '1-seed');
@@ -263,6 +266,26 @@ const choose = async (page, label, option) => {
     });
     expectEqual(widths.gallery, widths.content, 'public: the gallery fills the block');
     await shoot(view, '4-public');
+
+    // -- 7. no styles registered -----------------------------------------------
+    // The vocabulary answers empty, as it does for an emptied record. The record
+    // itself stays: @registry can empty it but can't write its tuples back.
+    await page.route(`**/@vocabularies/${STYLES_VOCABULARY}*`, (route) =>
+      route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [] }) }),
+    );
+    await page.goto(edit, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector(ROOT, { timeout: 90000 });
+    await page.waitForTimeout(1500);
+    await heading.click();
+    await page.locator(SIDEBAR).getByLabel('Variation', { exact: true }).waitFor({ timeout: 15000 });
+    expectEqual(await page.locator(SIDEBAR).getByLabel('Style', { exact: true }).count(), 0, 'no styles: no Style control');
+    expectEqual(await page.locator(`${ROOT}.has--blockStyle--feature`).count(), 0, 'no styles: no class on the canvas');
+    await shoot(page, '5-no-styles');
+    await heading.fill('Our friends again');
+    await save(page);
+    stored = await storedBlock();
+    expectEqual(stored.blocks.heading.children[0].text, 'Our friends again', 'no styles: the save went through');
+    expectEqual(stored.blockStyle, 'feature', 'no styles: the save keeps the stored style');
 
     if (pageErrors.length) fail(`uncaught page errors:\n${pageErrors.join('\n')}`);
     if (process.exitCode !== 1) console.log('PASS');

@@ -19,10 +19,13 @@ function referenceListProperties(formData: GalleryReflistData) {
   return (schema?.properties ?? {}) as Record<string, unknown>;
 }
 
-/** A stored id the site dropped stays a choice, so a save doesn't lose it. */
+/**
+ * No styles registered means no field, whatever the block stored. Otherwise a
+ * stored id the site dropped stays a choice, so a save doesn't lose it.
+ */
 function styleChoices(stored?: string) {
   const choices = blockStyles();
-  if (stored && stored !== 'none' && !choices.some(([id]) => id === stored)) {
+  if (choices.length && stored && stored !== 'none' && !choices.some(([id]) => id === stored)) {
     return [...choices, [stored, stored]];
   }
   return choices;
