@@ -2,7 +2,7 @@
  * published page.
  *
  *  1. A fresh block seeds itself: example words, three example images.
- *  2. Typing stays in the field and lands in the nested child.
+ *  2. Typing stays in the field, at the caret, and lands in the nested child.
  *  3. The sidebar's fields reach the nested gallery, the style reaches the root.
  *  4. Saved without references: the words are public, the examples are not.
  *  5. Picking references replaces the examples with the real images.
@@ -162,8 +162,11 @@ const choose = async (page, label, option) => {
     // -- 2. typing -------------------------------------------------------------
     await heading.click();
     await heading.fill('');
-    await page.keyboard.type('Our friends');
+    await page.keyboard.type('Our ends');
+    for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowLeft');
+    await page.keyboard.type('fri', { delay: 50 });
     expectEqual(await heading.inputValue(), 'Our friends', 'typing: every key lands in the field');
+    expectEqual(await heading.evaluate((field) => field.selectionStart), 7, 'typing: the caret stays where the words go in');
     expectEqual(
       await heading.evaluate((field) => document.activeElement === field),
       true,

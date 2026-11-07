@@ -1,5 +1,5 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
-import { useRef, useLayoutEffect, useEffect } from "react";
+import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import config from "@plone/registry";
 const VOCABULARY = "collective.blicca.galleryreflist.BlockStyles";
 let definitions = [];
@@ -74,22 +74,29 @@ function placeholderGallery(gallery = {}) {
 const stop = (event) => event.stopPropagation();
 function InlineField({ value, onChange, label }) {
   const ref = useRef(null);
+  const [typed, setTyped] = useState(null);
+  const shown = typed ?? value;
   useLayoutEffect(() => {
     const element = ref.current;
     if (!element) return;
     element.style.height = "auto";
     element.style.height = `${element.scrollHeight}px`;
-  }, [value]);
+  }, [shown]);
   return /* @__PURE__ */ jsx(
     "textarea",
     {
       ref,
       className: "galleryreflist-input",
       rows: 1,
-      value,
+      value: shown,
       placeholder: label,
       "aria-label": label,
-      onChange: (event) => onChange(event.target.value.replace(/[\r\n]+/g, " ")),
+      onChange: (event) => {
+        const text = event.target.value.replace(/[\r\n]+/g, " ");
+        setTyped(text);
+        onChange(text);
+      },
+      onBlur: () => setTyped(null),
       onKeyDown: (event) => {
         event.stopPropagation();
         if (event.key === "Enter") event.preventDefault();

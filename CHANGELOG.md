@@ -2,8 +2,8 @@
 
 ## 1.0.0a2 (unreleased)
 
-
-- Nothing changed yet.
+- Keep the caret in place when typing in the middle of the heading or the
+  text; it jumped to the end after the first key.
 
 
 ## 1.0.0a1 (2026-11-09)

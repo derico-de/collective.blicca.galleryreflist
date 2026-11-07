@@ -78,6 +78,41 @@ describe('the inline fields', () => {
     expect(onKeyDown).not.toHaveBeenCalled();
   });
 
+  // The host writes the block back after the keystroke, in a later render.
+  const typeAt = (field: HTMLTextAreaElement, caret: number, key: string) => {
+    const setValue = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')!.set!;
+    setValue.call(field, field.value.slice(0, caret) + key + field.value.slice(caret));
+    field.setSelectionRange(caret + key.length, caret + key.length);
+    fireEvent.input(field);
+  };
+
+  it('keep the caret where the words go in', () => {
+    const onChangeBlock = vi.fn();
+    const { getByLabelText, rerender } = render(
+      <GalleryReflistEdit block="b1" data={seededData()} onChangeBlock={onChangeBlock} />,
+    );
+    const heading = getByLabelText('Heading') as HTMLTextAreaElement;
+    heading.focus();
+    typeAt(heading, 3, 'X');
+    rerender(<GalleryReflistEdit block="b1" data={onChangeBlock.mock.calls[0][1]} onChangeBlock={onChangeBlock} />);
+    expect(heading.value).toBe('A hXeading for this gallery');
+    expect(heading.selectionStart).toBe(4);
+  });
+
+  it('show the block again once left', () => {
+    const data = seededData();
+    const { getByLabelText, rerender } = render(
+      <GalleryReflistEdit block="b1" data={data} onChangeBlock={vi.fn()} />,
+    );
+    const heading = getByLabelText('Heading') as HTMLTextAreaElement;
+    heading.focus();
+    typeAt(heading, 0, 'X');
+    fireEvent.blur(heading);
+    const undone = { ...data, blocks: { ...data.blocks, heading: { type: 'h3', children: [{ text: 'Undone' }] } } };
+    rerender(<GalleryReflistEdit block="b1" data={undone} onChangeBlock={vi.fn()} />);
+    expect(heading.value).toBe('Undone');
+  });
+
   it('stay on one line', () => {
     const onChangeBlock = vi.fn();
     const { getByLabelText } = render(
