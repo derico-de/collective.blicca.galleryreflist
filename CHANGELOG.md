@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0a3 (unreleased)
+
+
+- Nothing changed yet.
+
+
 ## 1.0.0a2 (2026-11-10)
 
 - Keep the caret in place when typing in the middle of the heading or the
