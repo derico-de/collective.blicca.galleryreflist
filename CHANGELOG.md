@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0a2 (unreleased)
+
+
+- Nothing changed yet.
+
+
 ## 1.0.0a1 (2026-11-09)
 
 - Hide upgrade profiles from the add-ons control panel while keeping them
