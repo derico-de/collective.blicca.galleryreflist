@@ -1,6 +1,6 @@
 [project]
 name = "collective.blicca.galleryreflist"
-version = "1.0.0a2.dev0"
+version = "1.0.0a2"
 description = "Gallery section block for the Aurora editor: a heading, a text and a Reference List composed into one block, with registrable styles"
 readme = "README.md"
 requires-python = ">=3.11"

@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0a2 (unreleased)
+## 1.0.0a2 (2026-11-10)
 
 - Keep the caret in place when typing in the middle of the heading or the
   text; it jumped to the end after the first key.
