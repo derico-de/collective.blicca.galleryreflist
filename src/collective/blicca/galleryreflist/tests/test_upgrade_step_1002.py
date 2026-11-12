@@ -31,19 +31,19 @@ class TestUpgrade1002:
         self.registry.records[OLD_RECORD] = Record(pairs(), styles)
 
     def test_reaches_the_profile_version(self):
-        self.setup.upgradeProfile(PROFILE)
+        self.setup.upgradeProfile(PROFILE, dest="1002")
         assert self.setup.getLastVersionForProfile(PROFILE) == ("1002",)
 
     def test_moves_the_site_styles_and_drops_the_old_record(self):
         self._old([("forest", "Forest"), ("feature", "Feature")])
-        self.setup.upgradeProfile(PROFILE)
+        self.setup.upgradeProfile(PROFILE, dest="1002")
         assert self.registry[STYLES_RECORD] == [("forest", "Forest"), ("feature", "Feature")]
         assert OLD_RECORD not in self.registry.records
 
     def test_keeps_the_editor_styles_first(self):
         self.registry[STYLES_RECORD] = [("quiet", "Quiet"), ("feature", "Hervorgehoben")]
         self._old([("feature", "Feature"), ("compact", "Compact")])
-        self.setup.upgradeProfile(PROFILE)
+        self.setup.upgradeProfile(PROFILE, dest="1002")
         assert self.registry[STYLES_RECORD] == [
             ("quiet", "Quiet"),
             ("feature", "Hervorgehoben"),
@@ -52,11 +52,11 @@ class TestUpgrade1002:
 
     def test_an_emptied_list_stays_empty(self):
         self._old([])
-        self.setup.upgradeProfile(PROFILE)
+        self.setup.upgradeProfile(PROFILE, dest="1002")
         assert self.registry[STYLES_RECORD] == []
 
     def test_creates_the_editor_record_where_missing(self):
         del self.registry.records[STYLES_RECORD]
         self._old([("feature", "Feature")])
-        self.setup.upgradeProfile(PROFILE)
+        self.setup.upgradeProfile(PROFILE, dest="1002")
         assert self.registry[STYLES_RECORD] == [("feature", "Feature")]

@@ -8,6 +8,10 @@
   `.has--blockStyle--<id> .galleryreflist`. The upgrade moves a site's styles
   to the editor's list and removes the `collective.blicca.galleryreflist.styles`
   record.
+- The upgrade to 1003 removes what `derico.blicca.gallerysection`, this
+  block's predecessor, left on a site: its browser layer, its block add-on
+  records and its profile version. Without it every profile import logged a
+  skipped add-on and failed the Aurora block add-on diagnostics.
 
 
 ## 1.0.0a2 (2026-11-10)
