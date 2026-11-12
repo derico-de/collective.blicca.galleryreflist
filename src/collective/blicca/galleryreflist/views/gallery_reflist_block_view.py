@@ -5,14 +5,9 @@ from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_TYPE
 from plone.blicca.auroraeditor.rendering import BaseBlockView
 from plone.blicca.auroraeditor.rendering import render_blocks
 
-from collective.blicca.galleryreflist.styles import style_class_of
-
 
 class GalleryReflistBlockView(BaseBlockView):
     """Render the nested heading, text and reference list through the host."""
-
-    def root_class(self):
-        return " ".join(filter(None, ["galleryreflist", style_class_of(self.data)]))
 
     def nodes(self):
         """The children worth rendering, as nodes of a Plate tree, in layout order."""

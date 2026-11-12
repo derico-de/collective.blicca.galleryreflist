@@ -16,8 +16,8 @@
       profile="collective.blicca.galleryreflist:default">
 
     <genericsetup:upgradeStep
-        title="Register the block and its styles"
-        description="Add the block add-on record and the styles record."
+        title="Register the block"
+        description="Add the block add-on record."
         handler=".v1001.upgrade"
         />
 

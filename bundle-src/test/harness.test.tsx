@@ -52,11 +52,10 @@ describe('bundle hygiene', () => {
     const specifier = './.artifact-probe.mjs';
     const built: any = await import(/* @vite-ignore */ specifier);
     const probe: any = { blocks: { blocksConfig: {} } };
-    vi.stubGlobal('fetch', async () => ({ ok: false }));
-    expect(await built.default(probe)).toBe(probe);
-    vi.unstubAllGlobals();
-    expect(probe.blocks.blocksConfig['plone-collective.galleryreflist']?.id).toBe(
-      'plone-collective.galleryreflist',
-    );
+    expect(built.default(probe)).toBe(probe);
+    expect(probe.blocks.blocksConfig['plone-collective.galleryreflist']).toMatchObject({
+      id: 'plone-collective.galleryreflist',
+      blockStyle: true,
+    });
   });
 });

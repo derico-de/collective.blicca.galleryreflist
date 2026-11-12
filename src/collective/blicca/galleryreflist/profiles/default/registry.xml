@@ -17,11 +17,25 @@
     <value key="weight">110</value>
   </records>
 
-  <!-- The block styles. A theme replaces the list with its own
-       collective.blicca.galleryreflist.styles record. -->
-  <records
-      interface="collective.blicca.galleryreflist.interfaces.IGalleryReflistSettings"
-      prefix="collective.blicca.galleryreflist"
-      />
+  <!-- The block's styles, added to the editor's site-wide list. The
+       editor offers them on this block (blockStyle: true) and puts the
+       chosen one's class on its wrapper; galleryreflist-block.css styles
+       them. purge="false" keeps the site's styles and other add-ons'. -->
+  <record
+      name="plone.blicca.auroraeditor.block_styles"
+      interface="plone.blicca.auroraeditor.interfaces.IAuroraEditorSettings"
+      field="block_styles"
+      >
+    <value purge="false">
+      <element>
+        <element>feature</element>
+        <element>Feature</element>
+      </element>
+      <element>
+        <element>compact</element>
+        <element>Compact</element>
+      </element>
+    </value>
+  </record>
 
 </registry>

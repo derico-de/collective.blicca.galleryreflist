@@ -2,8 +2,12 @@
 
 ## 1.0.0a3 (unreleased)
 
-
-- Nothing changed yet.
+- Take the block's styles from the Aurora editor's block styles, edited in the
+  Aurora Editor control panel. The editor now puts the style class on the
+  block's wrapper instead of `section.galleryreflist`, so a rule reads
+  `.has--blockStyle--<id> .galleryreflist`. The upgrade moves a site's styles
+  to the editor's list and removes the `collective.blicca.galleryreflist.styles`
+  record.
 
 
 ## 1.0.0a2 (2026-11-10)

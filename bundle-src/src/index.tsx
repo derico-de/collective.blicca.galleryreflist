@@ -1,13 +1,12 @@
 /**
  * The Gallery Reference List block's Aurora half: one record, one bundle,
- * one `install()`. Async, because the sidebar reads the registered styles
- * synchronously (block add-on contract §1).
+ * one `install()`. `blockStyle: true` gives it the editor's Style control
+ * (block add-on contract §1.12).
  */
 import { GALLERYREFLIST_BLOCK_TYPE } from './galleryreflist/data';
 import GalleryReflistEdit from './galleryreflist/GalleryReflistEdit';
 import GalleryReflistIcon from './galleryreflist/GalleryReflistIcon';
 import GalleryReflistSchema from './galleryreflist/schema';
-import { loadBlockStyles, setBlockStyles } from './galleryreflist/styles';
 import GalleryReflistView from './galleryreflist/GalleryReflistView';
 import './styles.css';
 
@@ -20,10 +19,10 @@ export const GalleryReflistBlockInfo = {
   blockSchema: GalleryReflistSchema,
   icon: GalleryReflistIcon,
   category: 'referencelist',
+  blockStyle: true,
 };
 
-export default async function install(config: any) {
-  setBlockStyles(await loadBlockStyles(config.settings?.apiPath));
+export default function install(config: any) {
   config.blocks.blocksConfig[GALLERYREFLIST_BLOCK_TYPE] = GalleryReflistBlockInfo;
   return config;
 }

@@ -12,7 +12,7 @@
   <genericsetup:registerProfile
       name="default"
       title="Collective Blicca Galleryreflist"
-      description="Gallery section block for the Aurora editor: a heading, a text and a Reference List composed into one block, with registrable styles"
+      description="Gallery section block for the Aurora editor: a heading, a text and a Reference List composed into one block"
       provides="Products.GenericSetup.interfaces.EXTENSION"
       directory="profiles/default"
       />
@@ -47,8 +47,6 @@
       factory=".setuphandlers.HiddenProfiles"
       name="collective.blicca.galleryreflist-hiddenprofiles"
       />
-
-  <include package=".vocabularies" />
 
   <include package=".views" />
 

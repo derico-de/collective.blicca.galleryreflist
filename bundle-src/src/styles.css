@@ -2,8 +2,9 @@
  * The block's one stylesheet, for the canvas and the public page. The build
  * wraps it in the scope of the Aurora roots, so nothing here names a root.
  *
- * A registered style is dressed through `.has--blockStyle--<id>`; the two
- * below are the stock ones, and a theme adds its own the same way.
+ * The editor puts the chosen style's `.has--blockStyle--<id>` on the block
+ * wrapper; the two below are the ones this package registers, and a theme
+ * adds its own the same way.
  */
 
 .galleryreflist {
@@ -41,19 +42,19 @@
   outline-offset: 2px;
 }
 
-.galleryreflist.has--blockStyle--feature {
+.has--blockStyle--feature .galleryreflist {
   padding: 2rem;
   border-inline-start: 0.25rem solid currentColor;
   background: color-mix(in srgb, currentColor 5%, transparent);
 }
 
 /* The padding is the space above, not the heading's margin on top of it. */
-.galleryreflist.has--blockStyle--feature > .block-h3:first-child > h3 {
+.has--blockStyle--feature .galleryreflist > .block-h3:first-child > h3 {
   margin-block-start: 0;
 }
-.galleryreflist.has--blockStyle--compact .referencelist .item {
+.has--blockStyle--compact .galleryreflist .referencelist .item {
   padding-block: 0.75rem;
 }
-.galleryreflist.has--blockStyle--compact .referencelist .item.summary picture {
+.has--blockStyle--compact .galleryreflist .referencelist .item.summary picture {
   margin-block-end: 0.75rem;
 }

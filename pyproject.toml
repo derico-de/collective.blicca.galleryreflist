@@ -27,7 +27,7 @@ dependencies = [
     # Its block is the gallery this block nests, its transformers resolve the
     # nested references, and its widgets drive the sidebar.
     "collective.blicca.referencelist",
-    "plone.blicca.auroraeditor>=1.0.0a4",
+    "plone.blicca.auroraeditor>=1.0.0a6",
     "plone.restapi",
 ]
 

@@ -3,12 +3,14 @@
  *
  *  1. A fresh block seeds itself: example words, three example images.
  *  2. Typing stays in the field, at the caret, and lands in the nested child.
- *  3. The sidebar's fields reach the nested gallery, the style reaches the root.
+ *  3. The sidebar's fields reach the nested gallery, the style reaches the
+ *     block: the editor stamps its class on the block wrapper.
  *  4. Saved without references: the words are public, the examples are not.
  *  5. Picking references replaces the examples with the real images.
  *  6. The published page renders them as one block, at the block's full width.
- *  7. With no styles registered the sidebar has no Style control, and a save
- *     keeps the stored style.
+ *  7. With the site's styles emptied in the Aurora Editor control panel the
+ *     sidebar has no Style control, and a save keeps the stored style.
+ *     The styles are put back afterwards.
  *
  * Prerequisites: a running Plone site with collective.blicca.galleryreflist
  * installed, and the mockup bundle (pat-contentbrowser) reachable from the
@@ -31,10 +33,11 @@ const FOLDER_ID = 'galleryreflist-e2e';
 const PAGE_ID = 'page';
 const BLOCK_ID = 'gallery-block';
 const CATS = [480, 640, 800].map((width) => `https://cataas.com/cat?filter=mono&width=${width}`);
-const STYLES_VOCABULARY = 'collective.blicca.galleryreflist.BlockStyles';
+const CONTROLPANEL = '/@controlpanels/aurora-editor-controlpanel';
 const IMAGES = [1, 2].map((n) => ({ id: `image-${n}`, title: `E2E image ${n}` }));
 const BLOCK = `[data-slate-editor] [data-block-id="${BLOCK_ID}"]`;
 const ROOT = `${BLOCK} section.galleryreflist`;
+const STYLED = `${BLOCK}.has--blockStyle--feature`;
 const SIDEBAR = '#sidebar';
 
 async function cleanup() {
@@ -83,6 +86,14 @@ const choose = async (page, label, option) => {
   await select.selectOption({ label: option });
 };
 
+/** The editor's Style control is the CMSUI Select: a button and a listbox. */
+const pickStyle = async (page, option) => {
+  await page.locator(SIDEBAR).getByLabel('Style', { exact: true }).click();
+  await page.getByRole('option', { name: option, exact: true }).click();
+};
+const shownStyle = (page) =>
+  page.locator(SIDEBAR).getByLabel('Style', { exact: true }).evaluate((button) => button.textContent.trim());
+
 (async () => {
   await cleanup();
   await api('POST', '/', { '@type': 'Folder', id: FOLDER_ID, title: 'Gallery reference list e2e' });
@@ -130,6 +141,7 @@ const choose = async (page, label, option) => {
   page.on('pageerror', (error) => pageErrors.push(error.stack || String(error)));
   page.on('dialog', (dialog) => dialog.accept());
 
+  let siteStyles;
   try {
     await page.goto(`${BASE}/login`, { waitUntil: 'domcontentloaded' });
     await page.fill('input[name="__ac_name"]', USER);
@@ -177,15 +189,15 @@ const choose = async (page, label, option) => {
 
     // -- 3. the sidebar --------------------------------------------------------
     await page.locator(SIDEBAR).getByLabel('Style', { exact: true }).waitFor({ timeout: 15000 });
-    await choose(page, 'Style', 'Feature');
-    await page.locator(`${ROOT}.has--blockStyle--feature`).waitFor({ timeout: 5000 });
-    console.log('ok: the style reaches the root');
+    await pickStyle(page, 'Feature');
+    await page.locator(`${STYLED} section.galleryreflist`).waitFor({ timeout: 5000 });
+    console.log('ok: the style reaches the block');
     await choose(page, 'Variation', 'Summary');
     await page.locator(`${ROOT} .referencelist.variation-summary`).waitFor({ timeout: 5000 });
     console.log('ok: the variation reaches the nested gallery');
     await page.waitForTimeout(500);
     const field = (label) => page.locator(SIDEBAR).getByLabel(label, { exact: true }).inputValue();
-    expectEqual([await field('Style'), await field('Variation')], ['feature', 'summary'], 'the sidebar holds both choices');
+    expectEqual([await shownStyle(page), await field('Variation')], ['Feature', 'summary'], 'the sidebar holds both choices');
     await page.locator(SIDEBAR).getByText('Link items', { exact: true }).click();
     await page.waitForTimeout(300);
     expectEqual(await page.locator(SIDEBAR).getByLabel('Link items', { exact: true }).isChecked(), false, 'the sidebar holds Link items off');
@@ -204,7 +216,7 @@ const choose = async (page, label, option) => {
     const owner = await browser.newContext({ storageState: asOwner, viewport: { width: 1600, height: 1100 } });
     const view = await owner.newPage();
     await view.goto(`${BASE}/${FOLDER_ID}/${PAGE_ID}`, { waitUntil: 'domcontentloaded' });
-    const published = view.locator('section.galleryreflist.has--blockStyle--feature');
+    const published = view.locator('.has--blockStyle--feature > section.galleryreflist');
     expectEqual(await published.locator('h3').first().textContent(), 'Our friends', 'public: the heading');
     expectEqual(canvasType, await type(published.locator('h3').first()), 'the canvas heading has the public type');
     expectEqual(canvasTextType, await type(published.locator('p').first()), 'the canvas text has the public type');
@@ -216,11 +228,11 @@ const choose = async (page, label, option) => {
     await page.waitForSelector(ROOT, { timeout: 90000 });
     await page.waitForTimeout(1500);
     expectEqual(await heading.inputValue(), 'Our friends', 'reloaded: the typed heading, not the seed');
-    expectEqual(await page.locator(`${ROOT}.has--blockStyle--feature`).count(), 1, 'reloaded: the style');
+    expectEqual(await page.locator(STYLED).count(), 1, 'reloaded: the style');
     await heading.click();
     await page.locator(SIDEBAR).getByLabel('Variation', { exact: true }).waitFor({ timeout: 15000 });
     expectEqual(await field('Variation'), 'summary', 'reloaded: the sidebar reads the nested variation');
-    expectEqual(await field('Style'), 'feature', 'reloaded: the sidebar reads the style');
+    expectEqual(await shownStyle(page), 'Feature', 'reloaded: the sidebar reads the style');
     const widget = `${SIDEBAR} .referencelist-references-widget`;
     await page.locator(`${widget} .content-browser-selected-items-wrapper`).waitFor({ timeout: 15000 });
     await page.waitForTimeout(1000);
@@ -271,18 +283,15 @@ const choose = async (page, label, option) => {
     await shoot(view, '4-public');
 
     // -- 7. no styles registered -----------------------------------------------
-    // The vocabulary answers empty, as it does for an emptied record. The record
-    // itself stays: @registry can empty it but can't write its tuples back.
-    await page.route(`**/@vocabularies/${STYLES_VOCABULARY}*`, (route) =>
-      route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [] }) }),
-    );
+    siteStyles = (await api('GET', CONTROLPANEL)).data.block_styles;
+    await api('PATCH', CONTROLPANEL, { block_styles: [] });
     await page.goto(edit, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector(ROOT, { timeout: 90000 });
     await page.waitForTimeout(1500);
     await heading.click();
     await page.locator(SIDEBAR).getByLabel('Variation', { exact: true }).waitFor({ timeout: 15000 });
     expectEqual(await page.locator(SIDEBAR).getByLabel('Style', { exact: true }).count(), 0, 'no styles: no Style control');
-    expectEqual(await page.locator(`${ROOT}.has--blockStyle--feature`).count(), 0, 'no styles: no class on the canvas');
+    expectEqual(await page.locator(STYLED).count(), 0, 'no styles: no class on the canvas');
     await shoot(page, '5-no-styles');
     await heading.fill('Our friends again');
     await save(page);
@@ -293,6 +302,7 @@ const choose = async (page, label, option) => {
     if (pageErrors.length) fail(`uncaught page errors:\n${pageErrors.join('\n')}`);
     if (process.exitCode !== 1) console.log('PASS');
   } finally {
+    if (siteStyles) await api('PATCH', CONTROLPANEL, { block_styles: siteStyles });
     await browser.close();
     await cleanup();
   }

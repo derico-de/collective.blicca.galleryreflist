@@ -11,7 +11,6 @@ import {
   REFERENCELIST_BLOCK_TYPE,
   hasReferences,
   placeholderGallery,
-  rootClass,
   seededData,
   textOf,
   withText,
@@ -65,7 +64,7 @@ export function GalleryReflistEdit({ block, data = {}, onChangeBlock }: GalleryR
     });
 
   return (
-    <section className={rootClass(data)}>
+    <section className="galleryreflist">
       <div className="block block-h3">
         <h3>
           <InlineField

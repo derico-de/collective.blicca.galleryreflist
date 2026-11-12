@@ -17,11 +17,4 @@
     <value key="weight">110</value>
   </records>
 
-  <!-- The block styles. A theme replaces the list with its own
-       collective.blicca.galleryreflist.styles record. -->
-  <records
-      interface="collective.blicca.galleryreflist.interfaces.IGalleryReflistSettings"
-      prefix="collective.blicca.galleryreflist"
-      />
-
 </registry>

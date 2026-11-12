@@ -1,6 +1,4 @@
 /** The stored block: three children under `blocks`, in `blocks_layout` order. */
-import { blockStyleIds } from './styles';
-
 export const GALLERYREFLIST_BLOCK_TYPE = 'plone-collective.galleryreflist';
 export const REFERENCELIST_BLOCK_TYPE = 'plone-collective.referencelist';
 
@@ -8,7 +6,6 @@ export type TextNode = { type: string; children: Array<{ text?: string }> };
 export type GalleryChild = Record<string, unknown> & { references?: unknown[] };
 export type Blocks = { heading?: TextNode; text?: TextNode; gallery?: GalleryChild };
 export type GalleryReflistData = Record<string, unknown> & {
-  blockStyle?: string;
   blocks?: Blocks;
 };
 
@@ -38,14 +35,6 @@ export const withText = (node: TextNode | undefined, type: string, text: string)
 
 export const hasReferences = (gallery?: GalleryChild) =>
   Array.isArray(gallery?.references) && gallery.references.length > 0;
-
-/** The root's classes; a style the site dropped gives none, like the server. */
-export function rootClass(data: GalleryReflistData = {}) {
-  const style = data.blockStyle;
-  return style && blockStyleIds().includes(style)
-    ? `galleryreflist has--blockStyle--${style}`
-    : 'galleryreflist';
-}
 
 const PLACEHOLDER_HOST = 'https://cataas.com';
 // One URL per image, or the browser shows the one cached cat three times.

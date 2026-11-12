@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <metadata>
-  <version>1001</version>
+  <version>1002</version>
   <dependencies>
     <dependency>profile-plone.app.registry:default</dependency>
+    <dependency>profile-plone.blicca.auroraeditor:default</dependency>
     <dependency>profile-collective.blicca.referencelist:default</dependency>
   </dependencies>
 </metadata>
