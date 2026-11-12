@@ -6,7 +6,9 @@ from plone.browserlayer.utils import registered_layers
 from plone.registry import field
 from plone.registry import Record
 from plone.registry.interfaces import IRegistry
-from ZODB.broken import find_global
+from plone.browserlayer.interfaces import ILocalBrowserLayerType
+from ZODB.broken import Broken
+from zope.component import getSiteManager
 from zope.component import getUtility
 
 
@@ -15,6 +17,11 @@ OLD_PROFILE = "derico.blicca.gallerysection:default"
 OLD_LAYER = "derico.blicca.gallerysection"
 OLD_RECORD = "plone.blicca.auroraeditor.blockaddons/derico.blicca.gallerysection.gallerysection.bundle"
 OWN_RECORD = "plone.blicca.auroraeditor.blockaddons/collective.blicca.galleryreflist.galleryreflist.bundle"
+
+
+def broken_layer():
+    """A layer class of the removed package, as the ZODB loads it."""
+    return type("IDericoBliccaGallerysectionLayer", (Broken,), {"__module__": f"{OLD_LAYER}.interfaces"})
 
 
 class TestUpgrade1003:
@@ -26,7 +33,13 @@ class TestUpgrade1003:
 
     def _leftovers(self):
         """What a site holds once the removed package's code is gone."""
-        register_layer(find_global("derico.blicca.gallerysection.interfaces", "IGallerysectionLayer"), OLD_LAYER)
+        # Each persistent record that refers to the missing class loads its
+        # own broken copy: the registration and the subscription differ.
+        registered, subscribed = (broken_layer() for _copy in range(2))
+        register_layer(registered, OLD_LAYER)
+        utilities = getSiteManager().utilities
+        utilities.unsubscribe((), ILocalBrowserLayerType, registered)
+        utilities.subscribe((), ILocalBrowserLayerType, subscribed)
         self.registry.records[OLD_RECORD] = Record(field.TextLine(), "gallerysection-block.js")
         self.setup.setLastVersionForProfile(OLD_PROFILE, "1000")
 
@@ -38,6 +51,7 @@ class TestUpgrade1003:
         self._leftovers()
         self.setup.upgradeProfile(PROFILE)
         assert "derico.blicca.gallerysection" not in repr(list(registered_layers()))
+        assert getSiteManager().queryUtility(ILocalBrowserLayerType, name=OLD_LAYER) is None
         assert OLD_RECORD not in self.registry.records
         assert self.setup.getLastVersionForProfile(OLD_PROFILE) == "unknown"
 
