@@ -1,16 +1,12 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import {
   hasReferences,
   placeholderGallery,
-  rootClass,
   seededData,
   textOf,
   withText,
 } from '../src/galleryreflist/data';
-import { blockStyles, loadBlockStyles, setBlockStyles } from '../src/galleryreflist/styles';
-
-afterEach(() => setBlockStyles([]));
 
 describe('the seed', () => {
   it('holds the three children in order, with example words and no references', () => {
@@ -53,44 +49,5 @@ describe('the placeholder gallery', () => {
     expect(hasReferences({ references: [] })).toBe(false);
     expect(hasReferences({})).toBe(false);
     expect(hasReferences({ references: [{ '@id': 'x' }] })).toBe(true);
-  });
-});
-
-describe('the root class', () => {
-  it('names a registered style', () => {
-    setBlockStyles([['feature', 'Feature']]);
-    expect(rootClass({ blockStyle: 'feature' })).toBe('galleryreflist has--blockStyle--feature');
-  });
-
-  it.each([{}, { blockStyle: 'none' }, { blockStyle: 'gone' }])('gives none for %j', (data) => {
-    setBlockStyles([['feature', 'Feature']]);
-    expect(rootClass(data)).toBe('galleryreflist');
-  });
-});
-
-describe('loading the styles', () => {
-  const response = (body: unknown, ok = true) => ({ ok, json: async () => body }) as Response;
-
-  it('reads the vocabulary below the portal', async () => {
-    const fetchImpl = vi.fn(async () =>
-      response({ items: [{ token: 'feature', title: 'Feature' }] }),
-    );
-    const styles = await loadBlockStyles('http://site/Plone/', fetchImpl as any);
-    expect(styles).toEqual([['feature', 'Feature']]);
-    expect((fetchImpl.mock.calls as any)[0][0]).toBe(
-      'http://site/Plone/@vocabularies/collective.blicca.galleryreflist.BlockStyles?b_size=-1',
-    );
-  });
-
-  it('gives none on a refused request', async () => {
-    expect(await loadBlockStyles('', (async () => response({}, false)) as any)).toEqual([]);
-  });
-
-  it('gives none on a failed request', async () => {
-    const failing = async () => {
-      throw new Error('offline');
-    };
-    expect(await loadBlockStyles('', failing as any)).toEqual([]);
-    expect(blockStyles()).toEqual([]);
   });
 });

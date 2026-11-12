@@ -7,10 +7,4 @@
       remove="true"
       />
 
-  <records
-      interface="collective.blicca.galleryreflist.interfaces.IGalleryReflistSettings"
-      prefix="collective.blicca.galleryreflist"
-      remove="true"
-      />
-
 </registry>

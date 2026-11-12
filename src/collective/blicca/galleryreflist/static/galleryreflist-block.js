@@ -1,27 +1,6 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { useRef, useState, useLayoutEffect, useEffect } from "react";
 import config from "@plone/registry";
-const VOCABULARY = "collective.blicca.galleryreflist.BlockStyles";
-let definitions = [];
-function setBlockStyles(next) {
-  definitions = next;
-}
-const blockStyles = () => definitions;
-const blockStyleIds = () => definitions.map(([id]) => id);
-async function loadBlockStyles(apiPath = "", fetchImpl = fetch) {
-  const base = apiPath.replace(/\/+$/, "");
-  try {
-    const response = await fetchImpl(`${base}/@vocabularies/${VOCABULARY}?b_size=-1`, {
-      headers: { Accept: "application/json" },
-      credentials: "same-origin"
-    });
-    if (!response.ok) return [];
-    const { items } = await response.json();
-    return items.map(({ token, title }) => [token, title]);
-  } catch {
-    return [];
-  }
-}
 const GALLERYREFLIST_BLOCK_TYPE = "plone-collective.galleryreflist";
 const REFERENCELIST_BLOCK_TYPE = "plone-collective.referencelist";
 function seededData() {
@@ -45,10 +24,6 @@ const withText = (node, type, text) => ({
   children: [{ text }]
 });
 const hasReferences = (gallery) => Array.isArray(gallery?.references) && gallery.references.length > 0;
-function rootClass(data = {}) {
-  const style = data.blockStyle;
-  return style && blockStyleIds().includes(style) ? `galleryreflist has--blockStyle--${style}` : "galleryreflist";
-}
 const PLACEHOLDER_HOST = "https://cataas.com";
 const PLACEHOLDER_WIDTHS = [480, 640, 800];
 function placeholderGallery(gallery = {}) {
@@ -133,7 +108,7 @@ function GalleryReflistEdit({ block, data = {}, onChangeBlock }) {
     ...data,
     blocks: { ...blocks, [key]: withText(blocks[key], type, text) }
   });
-  return /* @__PURE__ */ jsxs("section", { className: rootClass(data), children: [
+  return /* @__PURE__ */ jsxs("section", { className: "galleryreflist", children: [
     /* @__PURE__ */ jsx("div", { className: "block block-h3", children: /* @__PURE__ */ jsx("h3", { children: /* @__PURE__ */ jsx(
       InlineField,
       {
@@ -176,16 +151,8 @@ function referenceListProperties(formData) {
   const schema = entry?.blockSchema?.({ formData: formData.blocks?.gallery ?? {} });
   return schema?.properties ?? {};
 }
-function styleChoices(stored) {
-  const choices = blockStyles();
-  if (choices.length && stored && stored !== "none" && !choices.some(([id]) => id === stored)) {
-    return [...choices, [stored, stored]];
-  }
-  return choices;
-}
 function GalleryReflistSchema({ formData = {} } = {}) {
   const inherited = referenceListProperties(formData);
-  const choices = styleChoices(formData.blockStyle);
   const gallery = GALLERY_FIELDS.filter((name) => name in inherited);
   const styling = STYLING_FIELDS.filter((name) => name in inherited);
   return {
@@ -194,19 +161,11 @@ function GalleryReflistSchema({ formData = {} } = {}) {
       {
         id: "default",
         title: "Default",
-        fields: [...choices.length ? ["blockStyle"] : [], ...gallery.map(galleryPath)]
+        fields: gallery.map(galleryPath)
       },
       { id: "styling", title: "Styling", fields: styling }
     ],
     properties: {
-      ...choices.length ? {
-        blockStyle: {
-          title: "Style",
-          widget: "referencelist_select",
-          choices: [["none", "None"], ...choices],
-          default: "none"
-        }
-      } : {},
       ...Object.fromEntries(gallery.map((name) => [galleryPath(name), inherited[name]])),
       ...Object.fromEntries(styling.map((name) => [name, inherited[name]]))
     },
@@ -220,7 +179,7 @@ function GalleryReflistView({ data = {} }) {
   const showGallery = hasReferences(gallery);
   if (!headingText.trim() && !bodyText.trim() && !showGallery) return null;
   const GalleryView = config.blocks?.blocksConfig?.[REFERENCELIST_BLOCK_TYPE]?.view;
-  return /* @__PURE__ */ jsxs("section", { className: rootClass(data), children: [
+  return /* @__PURE__ */ jsxs("section", { className: "galleryreflist", children: [
     headingText.trim() ? /* @__PURE__ */ jsx("div", { className: "block block-h3", children: /* @__PURE__ */ jsx("h3", { children: headingText }) }) : null,
     bodyText.trim() ? /* @__PURE__ */ jsx("div", { className: "block block-p", children: /* @__PURE__ */ jsx("p", { children: bodyText }) }) : null,
     showGallery && GalleryView ? /* @__PURE__ */ jsx(GalleryView, { data: gallery }) : null
@@ -234,10 +193,10 @@ const GalleryReflistBlockInfo = {
   view: GalleryReflistView,
   blockSchema: GalleryReflistSchema,
   icon: GalleryReflistIcon,
-  category: "referencelist"
+  category: "referencelist",
+  blockStyle: true
 };
-async function install(config2) {
-  setBlockStyles(await loadBlockStyles(config2.settings?.apiPath));
+function install(config2) {
   config2.blocks.blocksConfig[GALLERYREFLIST_BLOCK_TYPE] = GalleryReflistBlockInfo;
   return config2;
 }

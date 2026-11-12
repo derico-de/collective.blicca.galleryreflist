@@ -6,6 +6,7 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_ID
 from plone.blicca.auroraeditor import SOMERSAULT_BLOCK_TYPE
+from plone.blicca.auroraeditor.rendering import render_blocks
 from plone.dexterity.schema import SCHEMA_CACHE
 from plone.restapi.behaviors import IBlocks
 from plone.restapi.interfaces import IDeserializeFromJson
@@ -82,13 +83,22 @@ class TestRendering:
     def test_a_block_never_seeded_renders_nothing(self):
         assert self.render({"@type": BLOCK_TYPE}).strip() == ""
 
-    def test_style_class_sits_on_the_root(self):
-        html = self.render(block_data(blockStyle="feature"))
-        assert '<section class="galleryreflist has--blockStyle--feature">' in html
+    def render_on_the_page(self, data):
+        node = {**data, "type": "ploneBlock", "children": [{"text": ""}]}
+        return render_blocks(
+            self.doc,
+            self.request,
+            {SOMERSAULT_BLOCK_ID: {"@type": SOMERSAULT_BLOCK_TYPE, "value": [node]}},
+        )
+
+    def test_the_editor_stamps_the_style_on_the_block_wrapper(self):
+        html = self.render_on_the_page(block_data(blockStyle="feature"))
+        assert "has--blockStyle--feature" in html.split('<section class="galleryreflist">')[0]
 
     def test_dropped_style_gives_no_class(self):
-        html = self.render(block_data(blockStyle="gone"))
-        assert '<section class="galleryreflist">' in html
+        api.portal.set_registry_record("plone.blicca.auroraeditor.block_styles", [])
+        html = self.render_on_the_page(block_data(blockStyle="feature"))
+        assert "has--blockStyle" not in html
 
     def test_heading_text_is_escaped(self):
         html = self.render(block_data(heading="<script>x</script>"))

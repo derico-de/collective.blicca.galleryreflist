@@ -11,11 +11,11 @@ from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 
 from collective.blicca.galleryreflist.interfaces import ICollectiveBliccaGalleryreflistLayer
-from collective.blicca.galleryreflist.styles import RECORD as STYLES_RECORD
 
 
 RECORD_NAME = "collective.blicca.galleryreflist.galleryreflist"
 RESOURCE = "++plone++collective.blicca.galleryreflist"
+STYLES_RECORD = "plone.blicca.auroraeditor.block_styles"
 
 
 def block_addon_records():
@@ -71,8 +71,20 @@ class TestSetup:
         assert status.bundle_url
         assert status.css_url
 
-    def test_styles_record_installed(self):
+    def test_styles_added_to_the_editor_list(self):
         assert getUtility(IRegistry)[STYLES_RECORD] == [
+            ("feature", "Feature"),
+            ("compact", "Compact"),
+        ]
+
+    def test_reinstall_keeps_the_site_styles(self):
+        registry = getUtility(IRegistry)
+        registry[STYLES_RECORD] = [("quiet", "Quiet"), ("feature", "Feature")]
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-collective.blicca.galleryreflist:default", "plone.app.registry"
+        )
+        assert registry[STYLES_RECORD] == [
+            ("quiet", "Quiet"),
             ("feature", "Feature"),
             ("compact", "Compact"),
         ]
@@ -102,9 +114,6 @@ class TestUninstall:
 
     def test_blockaddon_record_removed(self):
         assert RECORD_NAME not in block_addon_records()
-
-    def test_styles_record_removed(self):
-        assert STYLES_RECORD not in getUtility(IRegistry).records
 
     def test_browserlayer_removed(self):
         assert ICollectiveBliccaGalleryreflistLayer not in utils.registered_layers()

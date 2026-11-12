@@ -1,2 +1,2 @@
-<section tal:attributes="class view/root_class"
+<section class="galleryreflist"
          tal:content="structure view/children"></section>

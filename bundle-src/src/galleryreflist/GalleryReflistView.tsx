@@ -4,7 +4,6 @@ import config from '@plone/registry';
 import {
   REFERENCELIST_BLOCK_TYPE,
   hasReferences,
-  rootClass,
   textOf,
   type GalleryReflistData,
 } from './data';
@@ -17,7 +16,7 @@ export function GalleryReflistView({ data = {} }: { data?: GalleryReflistData })
   if (!headingText.trim() && !bodyText.trim() && !showGallery) return null;
   const GalleryView = (config as any).blocks?.blocksConfig?.[REFERENCELIST_BLOCK_TYPE]?.view;
   return (
-    <section className={rootClass(data)}>
+    <section className="galleryreflist">
       {headingText.trim() ? (
         <div className="block block-h3">
           <h3>{headingText}</h3>

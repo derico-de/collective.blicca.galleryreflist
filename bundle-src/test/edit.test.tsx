@@ -6,16 +6,12 @@ import referenceListInstall from '../../../collective.blicca.referencelist/bundl
 import { seededData } from '../src/galleryreflist/data';
 import GalleryReflistEdit from '../src/galleryreflist/GalleryReflistEdit';
 import GalleryReflistView from '../src/galleryreflist/GalleryReflistView';
-import { setBlockStyles } from '../src/galleryreflist/styles';
 import { installUpstreamRegistry } from './upstream-registry';
 
 beforeAll(() => {
   referenceListInstall(installUpstreamRegistry(config as any));
 });
-afterEach(() => {
-  cleanup();
-  setBlockStyles([]);
-});
+afterEach(cleanup);
 
 const CATS = [480, 640, 800].map((width) => `https://cataas.com/cat?filter=mono&width=${width}`);
 const picked = { '@id': 'http://site/Plone/a', UID: 'ua', title: 'Picked item' };
@@ -139,14 +135,11 @@ describe('the gallery on the canvas', () => {
     expect(container.querySelector('.referencelist-notice')).toBeNull();
   });
 
-  it('carries the style class on the root', () => {
-    setBlockStyles([['feature', 'Feature']]);
+  it('leaves the style class to the editor’s block wrapper', () => {
     const { container } = render(
       <GalleryReflistEdit block="b1" data={{ ...seededData(), blockStyle: 'feature' }} />,
     );
-    expect(container.querySelector('section')?.className).toBe(
-      'galleryreflist has--blockStyle--feature',
-    );
+    expect(container.querySelector('section')?.className).toBe('galleryreflist');
   });
 });
 

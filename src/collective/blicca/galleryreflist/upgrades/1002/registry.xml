@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+
+  <!-- Creates the editor's record where it is missing, keeping its value;
+       v1002 then adds the styles. -->
+  <record
+      name="plone.blicca.auroraeditor.block_styles"
+      interface="plone.blicca.auroraeditor.interfaces.IAuroraEditorSettings"
+      field="block_styles"
+      >
+    <value purge="false" />
+  </record>
+
+</registry>

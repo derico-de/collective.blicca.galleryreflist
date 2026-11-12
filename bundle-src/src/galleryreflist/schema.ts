@@ -6,7 +6,6 @@
 import config from '@plone/registry';
 
 import { REFERENCELIST_BLOCK_TYPE, type GalleryReflistData } from './data';
-import { blockStyles } from './styles';
 
 const GALLERY_FIELDS = ['variation', 'linkItems', 'references'];
 const STYLING_FIELDS = ['blockWidth', 'backgroundColor'];
@@ -19,21 +18,8 @@ function referenceListProperties(formData: GalleryReflistData) {
   return (schema?.properties ?? {}) as Record<string, unknown>;
 }
 
-/**
- * No styles registered means no field, whatever the block stored. Otherwise a
- * stored id the site dropped stays a choice, so a save doesn't lose it.
- */
-function styleChoices(stored?: string) {
-  const choices = blockStyles();
-  if (choices.length && stored && stored !== 'none' && !choices.some(([id]) => id === stored)) {
-    return [...choices, [stored, stored]];
-  }
-  return choices;
-}
-
 export function GalleryReflistSchema({ formData = {} }: { formData?: GalleryReflistData } = {}) {
   const inherited = referenceListProperties(formData);
-  const choices = styleChoices(formData.blockStyle);
   const gallery = GALLERY_FIELDS.filter((name) => name in inherited);
   const styling = STYLING_FIELDS.filter((name) => name in inherited);
   return {
@@ -42,21 +28,11 @@ export function GalleryReflistSchema({ formData = {} }: { formData?: GalleryRefl
       {
         id: 'default',
         title: 'Default',
-        fields: [...(choices.length ? ['blockStyle'] : []), ...gallery.map(galleryPath)],
+        fields: gallery.map(galleryPath),
       },
       { id: 'styling', title: 'Styling', fields: styling },
     ],
     properties: {
-      ...(choices.length
-        ? {
-            blockStyle: {
-              title: 'Style',
-              widget: 'referencelist_select',
-              choices: [['none', 'None'], ...choices],
-              default: 'none',
-            },
-          }
-        : {}),
       ...Object.fromEntries(gallery.map((name) => [galleryPath(name), inherited[name]])),
       ...Object.fromEntries(styling.map((name) => [name, inherited[name]])),
     },

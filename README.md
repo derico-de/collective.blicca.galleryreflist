@@ -3,8 +3,8 @@
 A **Gallery Reference List** block for the Aurora editor in [Plone](https://plone.org) Blicca.
 Blicca is the former Plone Classic UI. One block holds a heading, a text and a
 list of hand-picked content items, so an author inserts a whole gallery section
-in one step instead of building it from three blocks. A site registers styles
-for the block, and the chosen style becomes a CSS class on the block's root.
+in one step instead of building it from three blocks. It offers the editor's
+block styles, and brings two of its own.
 
 Typical uses:
 
@@ -29,8 +29,8 @@ whose list and content picker it nests. The block's `@type` is
 - **The real Reference List.** Variation, Link items and the content picker
   are the Reference List's own fields, its templates apply, and its item
   lookup keeps the list current.
-- **Registrable styles.** A site replaces the list of styles in its registry,
-  and an empty list hides the Style control.
+- **Block styles.** The block offers the editor's Style control. Installing
+  adds two styles its stylesheet dresses to the site's list.
 - **Block width and background** come from the editor's regular block styling
   controls.
 
@@ -57,7 +57,8 @@ dependencies = [
 Then install **Collective Blicca Galleryreflist** from Plone's Add-ons control
 panel, or apply the `collective.blicca.galleryreflist:default` profile. It
 installs the Reference List along with it. Uninstalling removes the block
-registration and the styles record again.
+registration again. Its two styles stay in the site's list: remove them in the
+Aurora Editor control panel if no other block uses them.
 
 ## Using the block
 
@@ -66,7 +67,7 @@ heading and the text right on the canvas, and fill in the rest in the sidebar.
 
 | Field | What it does |
 |---|---|
-| Style | `None` or one of the registered styles. Hidden when none are registered |
+| Style | `None` or one of the site's block styles. Hidden when the site has none |
 | Variation | `Default`, `Summary` or `Grid` |
 | Link items | On by default: each card links to its item |
 | References | The picked items, in order |
@@ -81,23 +82,22 @@ Rules worth knowing:
 - Item titles without a list headline are `h3`, the same level as the block's
   heading.
 
-## Registering styles
+## Styles
 
-The styles authors can pick are one registry record, a list of `(id, name)`
-pairs. The stock list is `Feature` and `Compact`, two examples this add-on's
-stylesheet dresses. An add-on replaces the list in its `registry.xml`, and its
-profile must depend on `collective.blicca.galleryreflist:default`, which creates
-the record:
+The Style control lists the site's block styles: the Aurora editor's
+`plone.blicca.auroraeditor.block_styles` record, shared by every block that
+offers the control. Edit them as `id|Name` lines in the Aurora Editor control
+panel. Installing this add-on adds `feature|Feature` and `compact|Compact`,
+two examples its stylesheet dresses, and keeps the styles a site already has.
+
+An add-on adds its own styles in its `registry.xml`. `purge="false"` adds them
+to the list instead of replacing it:
 
 ```xml
 <!-- profiles/default/registry.xml of your theme or add-on -->
 <registry>
-  <record name="collective.blicca.galleryreflist.styles">
-    <value>
-      <element>
-        <element>feature</element>
-        <element>Feature</element>
-      </element>
+  <record name="plone.blicca.auroraeditor.block_styles">
+    <value purge="false">
       <element>
         <element>forest</element>
         <element>Forest</element>
@@ -107,48 +107,39 @@ the record:
 </registry>
 ```
 
-The list is set as a whole: an entry you leave out is gone, so list the stock
-ones you keep. `None` is always offered and `none` is not available as an id.
-
-An empty list hides the Style control:
-
-```xml
-<registry>
-  <record name="collective.blicca.galleryreflist.styles">
-    <value />
-  </record>
-</registry>
-```
+`None` is always offered and `none` is not available as an id. An empty list
+hides the Style control.
 
 A block that stored a dropped id keeps the value but renders without a style
 class on both surfaces, until the id is registered again. While other styles
 are registered, its Style control lists the id, until the author picks another.
 
-The record holds no CSS. Style the class the id gives:
+The record holds no CSS. The editor puts the class `has--blockStyle--<id>` on
+the block's wrapper, on the public page and on the canvas alike. Style the
+block inside it:
 
 ```css
-.galleryreflist.has--blockStyle--forest {
+.has--blockStyle--forest .galleryreflist {
   background: #e7f0e4;
 }
 ```
 
-The class sits on the block's own root, on the public page and on the canvas
-alike. The host keeps the block's outer wrapper to itself, so the root is the
-outermost element an add-on can dress.
-
 ## Rendered markup
 
 ```html
-<section class="galleryreflist has--blockStyle--forest">
-  <div class="block block-h3 …"><h3 id="…">Heading</h3></div>   <!-- only with a heading -->
-  <div class="block block-p …"><p>Text</p></div>                <!-- only with a text -->
-  <div class="block block-plone-collective-referencelist …">    <!-- only with references -->
-    <div class="referencelist variation-summary">…</div>
-  </div>
-</section>
+<div class="block block-plone-collective-galleryreflist … has--blockStyle--forest">
+  <section class="galleryreflist">
+    <div class="block block-h3 …"><h3 id="…">Heading</h3></div>   <!-- only with a heading -->
+    <div class="block block-p …"><p>Text</p></div>                <!-- only with a text -->
+    <div class="block block-plone-collective-referencelist …">    <!-- only with references -->
+      <div class="referencelist variation-summary">…</div>
+    </div>
+  </section>
+</div>
 ```
 
-The nested blocks use the regular block classes, so the site's heading and text
+The wrapper is the editor's, with its width, background and style classes. The
+nested blocks use the regular block classes, so the site's heading and text
 styles apply. The list inside is the Reference List's own markup. The canvas
 wraps the heading and text the same way, with an input in place of the words.
 

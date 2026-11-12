@@ -1,46 +1,23 @@
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import config from '@plone/registry';
 
 import referenceListInstall from '../../../collective.blicca.referencelist/bundle-src/src/index';
 import GalleryReflistSchema from '../src/galleryreflist/schema';
-import { setBlockStyles } from '../src/galleryreflist/styles';
 import { installUpstreamRegistry, resolveWidget } from './upstream-registry';
 
 const aurora = installUpstreamRegistry(config as any);
 beforeAll(() => {
   referenceListInstall(aurora);
 });
-afterEach(() => setBlockStyles([]));
 
 const properties = (formData = {}) =>
   GalleryReflistSchema({ formData }).properties as Record<string, any>;
 
 describe('the style field', () => {
-  it('offers None and the registered styles', () => {
-    setBlockStyles([['feature', 'Feature']]);
-    const { blockStyle } = properties();
-    expect(blockStyle.choices).toEqual([
-      ['none', 'None'],
-      ['feature', 'Feature'],
-    ]);
-    expect(blockStyle.default).toBe('none');
-  });
-
-  it('is absent where nothing is registered', () => {
-    const schema = GalleryReflistSchema();
-    expect(schema.fieldsets[0].fields).not.toContain('blockStyle');
-    expect(schema.properties).not.toHaveProperty('blockStyle');
-  });
-
-  it('is absent where nothing is registered, whatever the block stored', () => {
-    const schema = GalleryReflistSchema({ formData: { blockStyle: 'gone' } });
-    expect(schema.fieldsets[0].fields).not.toContain('blockStyle');
-    expect(schema.properties).not.toHaveProperty('blockStyle');
-  });
-
-  it('keeps a stored style the site dropped', () => {
-    setBlockStyles([['feature', 'Feature']]);
-    expect(properties({ blockStyle: 'gone' }).blockStyle.choices).toContainEqual(['gone', 'gone']);
+  it('is the editor’s, so the block declares none of its own', () => {
+    expect(GalleryReflistSchema({ formData: { blockStyle: 'feature' } }).properties).not.toHaveProperty(
+      'blockStyle',
+    );
   });
 });
 
