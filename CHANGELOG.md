@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0a3 (unreleased)
+## 1.0.0a3 (2026-11-13)
 
 - Take the block's styles from the Aurora editor's block styles, edited in the
   Aurora Editor control panel. The editor now puts the style class on the
