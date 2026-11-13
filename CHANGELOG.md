@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0a4 (unreleased)
+
+
+- Nothing changed yet.
+
+
 ## 1.0.0a3 (2026-11-13)
 
 - Take the block's styles from the Aurora editor's block styles, edited in the
